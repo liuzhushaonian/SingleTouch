@@ -3,4 +3,19 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+
+    <color name="colorYan">#ff3300</color>
+    <color name="colorFei">#ed5736</color>
+    <color name="colorDian">#177cb0</color>
+    <color name="colorCha">#f3f8f1</color>
+    <color name="colorAi">#a3e2c5</color>
+    <color name="colorDai">#494166</color>
+    <color name="colorZhu">#789262</color>
+    <color name="colorShui">#d4f2e8</color>
+    <color name="colorYa">#424b50</color>
+
+
+
+
+
 </resources>
