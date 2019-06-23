@@ -1,22 +1,17 @@
-package com.game.legend.singletouch.game_card;
+package com.game.legend.singletouch.game;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.FrameLayout;
 
 import com.game.legend.singletouch.R;
-import com.game.legend.singletouch.Square;
+import com.game.legend.singletouch.bean.Square;
 import com.game.legend.singletouch.utils.Difficulty;
 
 /**
@@ -27,17 +22,17 @@ import com.game.legend.singletouch.utils.Difficulty;
 public class GameView extends FrameLayout {
 
 
-    private ViewDragHelper viewDragHelper;
+    protected ViewDragHelper viewDragHelper;
     private View dragView;
     private Difficulty difficulty = Difficulty.EASY;//游戏难度 3x3 or 3x4
-    private int unitWidth;//单元宽度，大致是宽度/3，但考虑到有space，所以会小于这个值
+    protected int unitWidth;//单元宽度，大致是宽度/3，但考虑到有space，所以会小于这个值
 
-    private int viewSpace;
+    protected int viewSpace;
 
-    boolean isHorizontal = false;//标记是否横向移动
-    boolean isVertical = false;//标记是否纵向移动
-    private int column;//列
-    private int row;//行
+    protected boolean isHorizontal = false;//标记是否横向移动
+    protected boolean isVertical = false;//标记是否纵向移动
+    protected int column;//列
+    protected int row;//行
 
 
     private Square[] [] squares;
@@ -75,14 +70,10 @@ public class GameView extends FrameLayout {
     }
 
 
-    private void init() {
-
-
+    protected void init() {
 
         viewDragHelper = ViewDragHelper.create(this, 1.0f, callback);
-
         initPaint();
-
     }
 
     @Override
@@ -180,7 +171,7 @@ public class GameView extends FrameLayout {
     /**
      * 滑动view相关操作
      */
-    private ViewDragHelper.Callback callback = new ViewDragHelper.Callback() {
+    protected ViewDragHelper.Callback callback = new ViewDragHelper.Callback() {
 
         boolean ctrlHorizontal = false;
         boolean ctrlVertical = false;
@@ -510,9 +501,5 @@ public class GameView extends FrameLayout {
             }
         }
     }
-
-
-
-
 
 }

@@ -1,20 +1,17 @@
-package com.game.legend.singletouch.game_card;
+package com.game.legend.singletouch.game;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.RectF;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.ViewTreeObserver;
-import android.widget.FrameLayout;
 
 import com.game.legend.singletouch.R;
-import com.game.legend.singletouch.Square;
+import com.game.legend.singletouch.bean.Square;
+import com.game.legend.singletouch.utils.Conf;
 import com.game.legend.singletouch.utils.Status;
 
 /**
@@ -116,21 +113,20 @@ public class SquareView extends CardView {
 
     private void refresh(){
 
-        if (square.isBlank()){
-            return;
-        }
+        if (square.getType()==Conf.NORMAL) {
 
-        if (this.square.isActive()) {
+            if (this.square.isActive()) {
 
-            setElevation(10);
+                setElevation(10);
 
-            setBackgroundTintList(ColorStateList.valueOf(activationColor));
+                setBackgroundTintList(ColorStateList.valueOf(activationColor));
 //            setBackgroundColor(activationColor);
-        }else {
+            } else {
 
-            setElevation(0);
-            setBackgroundTintList(ColorStateList.valueOf(inactiveColor));
+                setElevation(0);
+                setBackgroundTintList(ColorStateList.valueOf(inactiveColor));
 //            setBackgroundColor(inactiveColor);
+            }
         }
 
     }
@@ -144,11 +140,9 @@ public class SquareView extends CardView {
 
         setRadius(10f);
 
-        if (square.isBlank()){
-            return;
+        if (square.getType() == Conf.NORMAL) {
+            refresh();
         }
-
-        refresh();
 
 
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -195,21 +189,43 @@ public class SquareView extends CardView {
 
             canvas.drawLine(0,0,0,getHeight(),paint);
 
+        }else {
+
+            paint.setColor(Color.TRANSPARENT);
+
+            canvas.drawLine(0,0,0,getHeight(),paint);
+
         }
 
         if (square.getRight()<0){
 
             canvas.drawLine(getWidth(),0,getWidth(),getHeight(),paint);
+        }else {
+
+
+            paint.setColor(Color.TRANSPARENT);
+            canvas.drawLine(getWidth(),0,getWidth(),getHeight(),paint);
+
         }
 
         if (square.getTop()<0){
 
             canvas.drawLine(0,0,getWidth(),0,paint);
 
+        }else {
+
+            paint.setColor(Color.TRANSPARENT);
+            canvas.drawLine(0,0,getWidth(),0,paint);
+
         }
 
         if (square.getBottom()<0){
 
+            canvas.drawLine(0,getHeight(),getWidth(),getHeight(),paint);
+
+        }else {
+
+            paint.setColor(Color.TRANSPARENT);
             canvas.drawLine(0,getHeight(),getWidth(),getHeight(),paint);
 
         }

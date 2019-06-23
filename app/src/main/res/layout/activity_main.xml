@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.MainActivity">
 
-    <com.game.legend.singletouch.game_card.GameView
+    <com.game.legend.singletouch.game.GameView
         android:layout_width="match_parent"
         android:layout_height="500dp"
         android:id="@+id/game_view"
@@ -24,6 +24,6 @@
 
 
 
-    </com.game.legend.singletouch.game_card.GameView>
+    </com.game.legend.singletouch.game.GameView>
 
 </LinearLayout>

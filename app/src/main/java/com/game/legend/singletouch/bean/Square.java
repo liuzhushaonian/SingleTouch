@@ -1,5 +1,7 @@
-package com.game.legend.singletouch;
+package com.game.legend.singletouch.bean;
 
+
+import com.game.legend.singletouch.utils.Conf;
 
 import lombok.Data;
 
@@ -16,9 +18,11 @@ public class Square {
     private int top=1;
     private int bottom=1;
 
-    private boolean isBlank=false;//空白块，无需激活
+//    private boolean isBlank=false;//空白块，无需激活
 
+    private int type= Conf.NORMAL;
 
+    private boolean isMove=false;
 
 
 }

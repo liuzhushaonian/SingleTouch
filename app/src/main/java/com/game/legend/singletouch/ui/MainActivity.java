@@ -3,12 +3,11 @@ package com.game.legend.singletouch.ui;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.game.legend.singletouch.R;
-import com.game.legend.singletouch.Square;
-import com.game.legend.singletouch.game_card.GameView;
+import com.game.legend.singletouch.bean.Square;
+import com.game.legend.singletouch.game.GameView;
 
 public class MainActivity extends AppCompatActivity {
 
