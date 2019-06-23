@@ -1,12 +1,15 @@
 package com.game.legend.singletouch.bean;
 
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.game.legend.singletouch.utils.Conf;
 
 import lombok.Data;
 
 @Data
-public class Square {
+public class Square implements Parcelable {
 
     private int column;//所在列
     private int row;//所在行
@@ -24,5 +27,48 @@ public class Square {
 
     private boolean isMove=false;
 
+    public Square() {
+    }
 
+    protected Square(Parcel in) {
+        column = in.readInt();
+        row = in.readInt();
+        isActive = in.readByte() != 0;
+        left = in.readInt();
+        right = in.readInt();
+        top = in.readInt();
+        bottom = in.readInt();
+        type = in.readInt();
+        isMove = in.readByte() != 0;
+    }
+
+    public static final Creator<Square> CREATOR = new Creator<Square>() {
+        @Override
+        public Square createFromParcel(Parcel in) {
+            return new Square(in);
+        }
+
+        @Override
+        public Square[] newArray(int size) {
+            return new Square[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(column);
+        dest.writeInt(row);
+        dest.writeByte((byte) (isActive ? 1 : 0));
+        dest.writeInt(left);
+        dest.writeInt(right);
+        dest.writeInt(top);
+        dest.writeInt(bottom);
+        dest.writeInt(type);
+        dest.writeByte((byte) (isMove ? 1 : 0));
+    }
 }
