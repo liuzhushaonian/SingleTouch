@@ -56,9 +56,6 @@ public class EditCard extends CardView {
     boolean isScale=false;
 
 
-    private int px,py;
-
-
     public EditCard(Context context) {
         super(context);
         init();
@@ -88,6 +85,14 @@ public class EditCard extends CardView {
 
     public void setPositionY(int positionY) {
         this.positionY = positionY;
+    }
+
+    public boolean isScale() {
+        return isScale;
+    }
+
+    public void setScale(boolean scale) {
+        isScale = scale;
     }
 
     @Override
@@ -122,6 +127,8 @@ public class EditCard extends CardView {
         }
 
         initType();
+
+        postInvalidate();
 
     }
 
@@ -453,6 +460,11 @@ public class EditCard extends CardView {
      */
     private void goStart(){
 
+        if (!isScale){//不是放大状态不改变
+            return;
+
+        }
+
         switch (p){
 
             case 10://左边上下滑
@@ -495,10 +507,6 @@ public class EditCard extends CardView {
      * @param p 方向
      */
     private void threadShow(int p){
-
-        if (!isScale){
-            return;
-        }
 
         if (getRow()==0&&p==20){//最上面一排顶部不用动
 
@@ -659,22 +667,6 @@ public class EditCard extends CardView {
     }
 
 
-    public void click(int x,int y){
-
-        if (!isScale){//未放大状态
-
-            scale(10,2f,x,y);
-
-            isScale=true;
-
-        }else {
-            scale(20,1f,x,y);
-            isScale=false;
-        }
-
-    }
-
-
     /**
      * 外部改变view的类型
      */
@@ -760,68 +752,5 @@ public class EditCard extends CardView {
         }
 
     }
-
-
-    /**
-     * 缩放view
-     * @param sc 倍数
-     */
-    private void scale(int type,float sc,float x,float y){
-
-
-
-
-
-
-        switch (type){
-
-            case 10://放大
-
-//                setPivotX(x);
-//                setPivotY(y);
-
-                setScaleX(sc);
-                setScaleY(sc);
-
-                setElevation(6f);
-
-                break;
-
-            case 20://恢复
-
-//                setPivotX(px);
-//                setPivotY(py);
-                setScaleX(sc);
-                setScaleY(sc);
-
-                if (square.isActive()){
-
-                    setElevation(6f);
-
-                }else {
-
-                    setElevation(0f);
-                }
-
-                break;
-
-
-        }
-
-
-    }
-
-    /**
-     * 保存当前view的中心，便于恢复
-     */
-    private void savePivot(){
-
-        px=getLeft()+getWidth()/2;
-
-        py=getTop()+getHeight()/2;
-
-
-    }
-
 
 }

@@ -1,5 +1,7 @@
 package com.game.legend.singletouch.edit_game;
 
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.ViewTreeObserver;
@@ -12,11 +14,14 @@ public class EditActivity extends AppCompatActivity {
 
     EditLayout editLayout;
 
+    private EditFragment editFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
         editLayout=findViewById(R.id.edit_layout);
+        editLayout.setEditCardClickCallback(this::addFragment);
 
         redraw();
 
@@ -80,5 +85,77 @@ public class EditActivity extends AppCompatActivity {
 
 
 
+    private void addFragment(Square square){
 
+        FragmentTransaction transaction=getSupportFragmentManager().beginTransaction();
+
+        this.editFragment=new EditFragment();
+
+        Bundle bundle=new Bundle();
+
+        bundle.putParcelable("square",square);
+
+        this.editFragment.setArguments(bundle);
+
+        transaction.replace(R.id.fragment_container,this.editFragment);
+
+        transaction.addToBackStack(null);
+
+        transaction.commit();
+
+    }
+
+    private void removeFragment(boolean done){
+
+        if (this.editFragment==null){
+            return;
+        }
+
+        if (done) {//确定更改
+
+            Bundle bundle = editFragment.getArguments();
+
+            if (bundle != null) {
+
+                Square square = bundle.getParcelable("square");
+
+                if (square != null) {
+
+                    editLayout.applyCard(square);
+
+                }
+            }
+        }
+
+        FragmentTransaction transaction=getSupportFragmentManager().beginTransaction();
+
+        transaction.remove(editFragment);
+
+        getSupportFragmentManager().popBackStack();
+
+        transaction.commit();
+
+        this.editFragment=null;
+
+    }
+
+    public void remove(boolean done){
+        removeFragment(done);
+    }
+
+    @Override
+    public void onBackPressed() {
+
+
+        if (this.editFragment!=null){
+
+            remove(false);
+
+        }else {
+
+            super.onBackPressed();
+
+        }
+
+    }
 }

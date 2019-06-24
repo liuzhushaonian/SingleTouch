@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import com.game.legend.singletouch.R;
 import com.game.legend.singletouch.bean.Square;
 
+import java.util.Objects;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -59,4 +61,18 @@ public class EditFragment extends Fragment {
 
 
     }
+
+    private void cancel(){
+
+        ((EditActivity) Objects.requireNonNull(getActivity())).remove(false);
+
+    }
+
+    private void done(){
+
+        ((EditActivity) Objects.requireNonNull(getActivity())).remove(true);
+
+    }
+
+
 }

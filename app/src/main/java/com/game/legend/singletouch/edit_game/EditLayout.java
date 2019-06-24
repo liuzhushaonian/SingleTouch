@@ -46,6 +46,10 @@ public class EditLayout extends FrameLayout {
 
     private int row,column;
 
+    private EditCardClickCallback editCardClickCallback;
+
+    private EditCard editCard;
+
 
     public EditLayout(Context context) {
         super(context);
@@ -65,6 +69,10 @@ public class EditLayout extends FrameLayout {
     public EditLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
+    }
+
+    public void setEditCardClickCallback(EditCardClickCallback editCardClickCallback) {
+        this.editCardClickCallback = editCardClickCallback;
     }
 
     @Override
@@ -144,18 +152,23 @@ public class EditLayout extends FrameLayout {
 
                 view.setOnClickListener(v -> {
 
-                    view.click(getMeasuredWidth()/2,getMeasuredHeight()/2);
+                    if (view.isScale){
+
+                        if (editCardClickCallback!=null){
+                            editCardClickCallback.addFragment(view.getSquare());
+                            this.editCard=view;//保存状态
+                            view.setScale(true);
+
+                        }
+
+                    }else {
+
+                        view.changeType();
+                        view.setScale(false);
+
+                    }
 
                 });
-
-                view.setOnLongClickListener(v -> {
-
-
-
-                    return true;
-                });
-
-
 
 
                 //设置view的具体放置位置
@@ -528,6 +541,18 @@ public class EditLayout extends FrameLayout {
     @Override
     public boolean performClick() {
         return super.performClick();
+    }
+
+    /**
+     * 修改完成，放回原位
+     * @param square
+     */
+    public void applyCard(Square square){
+
+        if (this.editCard!=null&&square!=null){
+            this.editCard.setSquare(square);
+        }
+
     }
 
 
