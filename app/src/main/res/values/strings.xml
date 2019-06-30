@@ -3,4 +3,42 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="edit_about">
+        每一块方格都可以设置一种状态，总共有四种状态。\n
+        已激活（蓝色）、未激活（黄色）、禁止进入（褐色）以及空白（可以随意进入且无需激活）\n
+        另外可对方块单方面设置禁止通过的区域（左右上下任意方向），轻轻在需要设置的方向滑动即可设置上，再次滑动即可取消设置。\n
+        游戏的目的是让所有可激活的方块（不包括禁止进入的方块以及空白方块）经过一定条件的滑动后全部转为已激活状态\n
+        在方格列表处长按某个方块即可设置其为出发点。\n
+        尽情发挥自己的想象，创造出好玩的指尖迷宫吧~
+
+    </string>
+
+    <string name="edit_done">完成</string>
+
+    <string name="edit_play">试玩</string>
+
+    <string name="step">步数 </string>
+
+    <string name="edit_ab">编辑说明</string>
+
+    <string name="edit_start">设置开始地点</string>
+    <string name="edit_start_sum">长按方块设置，也可以不设置，默认第一块不为禁止的区域作为开始方块</string>
+
+    <string name="edit_end">设置结束地点</string>
+    <string name="edit_end_sum">长按方块设置，决定游戏通关时的结束位置，也可以不设置，默认激活所有方块通关</string>
+
+    <string name="game_over">游戏结束</string>
+    <string name="game_victory">攻略成功</string>
+
+    <string name="game_resume">重玩本关</string>
+
+
+    <string name="over_step">步数用尽了，再好好考虑一下别的攻略方案吧</string>
+
+    <string name="over_end">攻略很好，只可惜没按要求，最后的落脚点不对哦~</string>
+
+    <string name="victory">完美的攻略！</string>
+
+
 </resources>

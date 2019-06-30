@@ -11,6 +11,7 @@ import lombok.Data;
 @Data
 public class Square implements Parcelable {
 
+    private int id;
     private int column;//所在列
     private int row;//所在行
     private boolean isActive;//是否已激活
@@ -25,12 +26,14 @@ public class Square implements Parcelable {
 
     private int type= Conf.NORMAL;
 
-    private boolean isMove=false;
+    private boolean isScale=false;
 
     public Square() {
     }
 
+
     protected Square(Parcel in) {
+        id = in.readInt();
         column = in.readInt();
         row = in.readInt();
         isActive = in.readByte() != 0;
@@ -39,7 +42,7 @@ public class Square implements Parcelable {
         top = in.readInt();
         bottom = in.readInt();
         type = in.readInt();
-        isMove = in.readByte() != 0;
+        isScale = in.readByte() != 0;
     }
 
     public static final Creator<Square> CREATOR = new Creator<Square>() {
@@ -61,6 +64,7 @@ public class Square implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
         dest.writeInt(column);
         dest.writeInt(row);
         dest.writeByte((byte) (isActive ? 1 : 0));
@@ -69,6 +73,6 @@ public class Square implements Parcelable {
         dest.writeInt(top);
         dest.writeInt(bottom);
         dest.writeInt(type);
-        dest.writeByte((byte) (isMove ? 1 : 0));
+        dest.writeByte((byte) (isScale ? 1 : 0));
     }
 }

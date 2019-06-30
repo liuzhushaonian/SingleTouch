@@ -4,27 +4,163 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".edit_game.EditFragment">
+    tools:context=".edit_game.EditFragment"
+    android:background="@color/colorWhite"
+    >
 
     <!-- TODO: Update blank fragment layout -->
-
-    <android.support.v4.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="56dp"
-        >
-
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        >
 
         <!--说明区域-->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:id="@+id/about"
+            >
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="点击查看详细说明"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:gravity="center"
+                android:layout_marginTop="16dp"
+                >
+
+                <View
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:background="@color/colorLan"
+                    />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="激活状态"
+                    android:layout_marginStart="16dp"
+                    />
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="16dp"
+                android:paddingStart="16dp"
+                android:gravity="center"
+                >
+
+                <View
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:background="@color/colorYa"
+                    />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="禁止区域（无法进入当前方块）"
+                    android:layout_marginStart="16dp"
+                    />
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="16dp"
+                android:paddingStart="16dp"
+                android:gravity="center"
+                >
+
+                <View
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:background="@color/colorXiangYaBai"
+                    />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="空白块（无需激活）"
+                    android:layout_marginStart="16dp"
+                    />
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="16dp"
+                android:paddingStart="16dp"
+                android:gravity="center"
+                >
+
+                <View
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:background="@color/colorYingCao"
+                    />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="未激活状态"
+                    android:layout_marginStart="16dp"
+                    />
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="16dp"
+                android:paddingStart="16dp"
+                android:gravity="center"
+                >
+
+                <View
+                    android:layout_width="48dp"
+                    android:layout_height="2dp"
+                    android:background="@color/colorYan"
+                    />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="禁止通过"
+                    android:layout_marginStart="16dp"
+                    />
+
+
+
+            </LinearLayout>
 
 
         </LinearLayout>
@@ -32,9 +168,9 @@
         <!--显示card区域-->
         <com.game.legend.singletouch.edit_game.EditCard
             android:id="@+id/card"
-            android:layout_width="match_parent"
-            android:layout_height="400dp"
-            android:layout_margin="16dp"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+
             >
 
 
@@ -43,7 +179,6 @@
 
     </LinearLayout>
 
-    </android.support.v4.widget.NestedScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -57,7 +192,8 @@
             android:layout_height="56dp"
             android:layout_marginEnd="16dp"
             android:src="@drawable/ic_clear_black_24dp"
-            android:backgroundTint="@color/colorGrey"
+            android:id="@+id/cancel"
+            app:backgroundTint="@color/colorGrey"
             />
 
         <android.support.design.widget.FloatingActionButton
@@ -65,7 +201,8 @@
             android:layout_height="56dp"
             android:layout_marginStart="16dp"
             android:src="@drawable/ic_done_black_24dp"
-            android:backgroundTint="@color/colorBiLv"
+            app:backgroundTint="@color/colorBiLv"
+            android:id="@+id/done"
             />
 
 

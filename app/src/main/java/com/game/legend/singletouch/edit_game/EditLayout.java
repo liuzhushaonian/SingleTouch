@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Path;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.ViewDragHelper;
+import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -16,6 +17,7 @@ import android.widget.FrameLayout;
 import android.widget.Scroller;
 
 import com.game.legend.singletouch.R;
+import com.game.legend.singletouch.bean.Game;
 import com.game.legend.singletouch.bean.Square;
 import com.game.legend.singletouch.game.GameView;
 import com.game.legend.singletouch.game.SquareView;
@@ -34,8 +36,6 @@ public class EditLayout extends FrameLayout {
 
     private EditCard[][] editCards=new EditCard[3][3];
 
-    private Square[][] squares;
-
     private int br,bc,positionX,positionY;//底部被移动view的行和列
 
     private EditCard bottomCard;
@@ -50,6 +50,11 @@ public class EditLayout extends FrameLayout {
 
     private EditCard editCard;
 
+    private EditCard card;
+
+    private Game game;
+
+    private boolean isLayout=false;
 
     public EditLayout(Context context) {
         super(context);
@@ -88,11 +93,6 @@ public class EditLayout extends FrameLayout {
 
     protected void init() {
 //        super.init();
-
-        viewDragHelper = ViewDragHelper.create(this, 1.0f, callback1);
-
-
-
     }
 
 
@@ -100,19 +100,34 @@ public class EditLayout extends FrameLayout {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
 
-        initCards();
+//        if (!isLayout) {
+
+            initCards();
+//        }
     }
 
-    public Square[][] getSquares() {
-        return squares;
+    public Game getGame() {
+        return game;
     }
 
+    public void setGame(Game game) {
+        this.game = game;
+//        initCards();
+//        invalidate();
 
-    public void setSquares(Square[][] squares) {
-        this.squares = squares;
-
-        initCards();
+        requestLayout();
     }
+
+//    public Square[][] getSquares() {
+//        return squares;
+//    }
+//
+//
+//    public void setSquares(Square[][] squares) {
+//        this.squares = squares;
+//
+//        initCards();
+//    }
 
     /**
      * 初始化卡片
@@ -121,16 +136,16 @@ public class EditLayout extends FrameLayout {
      */
     private void initCards(){
 
-        if (this.squares==null){
+        if (this.game==null||this.game.getSquares()==null){
             return;
         }
 
 //        Log.d("length--->>>",squares.length+"");
 
-        for (int a=0;a<this.squares.length;a++){
+        for (int a=0;a<this.game.getSquares().length;a++){
 
 
-            for (int t=0;t<this.squares[a].length;t++){
+            for (int t=0;t<this.game.getSquares()[a].length;t++){
 
                 EditCard view=new EditCard(getContext());
 
@@ -140,7 +155,7 @@ public class EditLayout extends FrameLayout {
 
                 addView(view,0);
 
-                Square square=squares[a][t];
+                Square square=this.game.getSquares()[a][t];
 
                 square.setRow(a);
 
@@ -152,22 +167,35 @@ public class EditLayout extends FrameLayout {
 
                 view.setOnClickListener(v -> {
 
-                    if (view.isScale){
+                    if (!view.isScale()){
 
                         if (editCardClickCallback!=null){
                             editCardClickCallback.addFragment(view.getSquare());
                             this.editCard=view;//保存状态
-                            view.setScale(true);
 
                         }
 
-                    }else {
-
-                        view.changeType();
-                        view.setScale(false);
-
                     }
+//                    else {
+//
+//                        view.changeType();
+//                        view.setScale(false);
+//
+//                    }
 
+                });
+
+                view.setOnLongClickListener(v -> {
+
+                    //设置开始与结束的位置
+                    //如果已经设置，那么取消
+                    //如果在设置好之后把方块设置为禁止，则取消
+
+                    showDialog(view.getSquare(),view);
+
+//                    relayout();
+
+                    return true;
                 });
 
 
@@ -183,10 +211,6 @@ public class EditLayout extends FrameLayout {
 
                         view.layout(l,top1,t*unitWidth+unitWidth,a*unitWidth+unitWidth);
 
-                        view.setPositionX(l+unitWidth/2);
-
-                        view.setPositionY(t+unitWidth/2);
-
                         break;
 
                     case 1:
@@ -196,10 +220,6 @@ public class EditLayout extends FrameLayout {
                         int top=viewSpace+a*viewSpace+a*unitWidth;
 
                         view.layout(l2,top,t*unitWidth+unitWidth,a*unitWidth+unitWidth);
-
-                        view.setPositionX(l2+unitWidth/2);
-
-                        view.setPositionY(top+unitWidth/2);
 
                         break;
 
@@ -212,9 +232,6 @@ public class EditLayout extends FrameLayout {
 
                         view.layout(l3,top2,t*unitWidth+unitWidth,a*unitWidth+unitWidth);
 
-                        view.setPositionX(l3+unitWidth/2);
-
-                        view.setPositionY(top2+unitWidth/2);
 
                         break;
 
@@ -222,325 +239,8 @@ public class EditLayout extends FrameLayout {
             }
         }
 
-    }
+        isLayout=true;
 
-
-    ViewDragHelper.Callback callback1=new ViewDragHelper.Callback() {
-        boolean ctrlHorizontal = false;
-        boolean ctrlVertical = false;
-
-        @Override
-        public boolean tryCaptureView(@NonNull View view, int i) {
-
-//            Log.d("view--->>>",view.toString());
-
-            return view==dragCard;
-        }
-
-        @Override
-        public int clampViewPositionHorizontal(@NonNull View child, int left, int dx) {
-
-
-            if (left <= 0) {//左边边界
-                return 0;
-            }
-
-//            Log.d("right--->>>",getRight()+"");
-
-            if (left + child.getMeasuredWidth() >= getMeasuredWidth()) {//避免越过右边边界
-
-                left = getRight() - child.getMeasuredWidth();
-
-                return left;
-            }
-
-            return left;
-        }
-
-        @Override
-        public int clampViewPositionVertical(@NonNull View child, int top, int dy) {
-
-            if (top <= 0) {//上边界
-                return 0;
-            }
-
-            if (top + child.getMeasuredHeight() >= getMeasuredHeight()) {//下边界
-
-                top = getMeasuredHeight() - child.getMeasuredHeight();
-
-                return top;
-
-            }
-
-
-            return top;
-        }
-
-
-        @Override
-        public void onViewPositionChanged(@NonNull View changedView, int left, int top, int dx, int dy) {
-            super.onViewPositionChanged(changedView, left, top, dx, dy);
-
-            /**
-             * 计算当前位置，用于判断是否进入某个格子
-             */
-
-            int xx=left+unitWidth/2;//获取中心位置
-
-            int yy=top+unitWidth/2;//获取中心位置
-
-            //只有中心位置到了该card上方才能激活该card，激活后如何松手，将会交换二者的位置
-
-            column = xx / unitWidth;
-            row = yy / unitWidth;
-
-            activeView(row,column);
-
-
-        }
-
-        @Override
-        public void onViewReleased(@NonNull View releasedChild, float xvel, float yvel) {
-            super.onViewReleased(releasedChild, xvel, yvel);
-
-            //松手后判断当前位置，以及是否有对应的bottomView，有则交换，没有就回归原位
-
-            if (bottomCard!=null){//可以交换
-
-                //将该view的行和列赋给底部view，同时先滑动底部view的位置到该view的原先位置，最后再将备份的底部view行和列给该view，
-                // 同时给该view赋上位置，滑动到底部view原先的位置，移动用动画，麻蛋其他移动方式贼特么恶心，直接上动画完事！
-
-                bottomCard.setRow(dragCard.getRow());
-                bottomCard.setColumn(dragCard.getColumn());
-                bottomCard.setPositionX(dragCard.getPositionX());
-                bottomCard.setPositionY(dragCard.getPositionY());
-
-                //计算被滑动view的原本位置
-
-                startMove(dragCard.getPositionX(),dragCard.getPositionY());
-
-                //滑动完成后还要把dragCard放到下面
-
-                dragCard.setRow(br);
-                dragCard.setColumn(bc);
-
-                dragCard.setPositionX(positionX);
-                dragCard.setPositionY(positionY);
-
-                viewDragHelper.settleCapturedViewAt(positionX-unitWidth/2,positionY-unitWidth/2);
-
-                resetValues();
-
-
-            }else {//不可交换,回归原位
-
-
-                viewDragHelper.settleCapturedViewAt(dragCard.getPositionX()-unitWidth/2,dragCard.getPositionY()-unitWidth/2);
-
-                resetValues();
-
-            }
-
-            dragCard=null;//取消标记可移动
-
-
-        }
-    };
-
-    @Override
-    public void computeScroll() {
-        super.computeScroll();
-
-        if (viewDragHelper.continueSettling(true)){
-
-            invalidate();
-
-        }
-
-    }
-
-    /**
-     * 激活底部的view
-     * @param row 行
-     * @param column 列
-     */
-    private void activeView(int row,int column){
-
-        if (row<0||column<0){
-
-            if (this.bottomCard!=null){
-                this.bottomCard.inactive();
-                this.bottomCard=null;
-                resetValues();
-            }
-            return;
-        }
-
-        if (editCards==null){
-            if (this.bottomCard!=null){
-                this.bottomCard.inactive();
-                this.bottomCard=null;
-                resetValues();
-            }
-            return;
-        }
-
-        if (row>editCards[0].length){
-            if (this.bottomCard!=null){
-                this.bottomCard.inactive();
-                this.bottomCard=null;
-                resetValues();
-            }
-            return;
-        }
-
-        if (column>editCards[1].length){
-            if (this.bottomCard!=null){
-                this.bottomCard.inactive();
-                this.bottomCard=null;
-                resetValues();
-            }
-            return;
-        }
-
-        EditCard editCard=editCards[row][column];
-
-        if (editCard==null){
-            if (this.bottomCard!=null){
-                this.bottomCard.inactive();
-                this.bottomCard=null;
-                resetValues();
-            }
-            return;
-        }
-
-        //如果已存在的底部view不为null且不等于这个获得的view，则取消当前底部view的激活状态，并将其化为新的值
-        if (this.bottomCard!=null&&this.bottomCard!=editCard){
-
-            this.bottomCard.inactive();
-
-            this.bottomCard=editCard;
-
-            bottomCard.active();
-
-        }else if (bottomCard==null){
-
-            this.bottomCard=editCard;
-
-            bottomCard.active();
-
-        }
-
-        //获取行和列
-        int r=editCard.getRow();
-        int c=editCard.getColumn();
-
-        setPosition(editCard.getPositionX(),editCard.getPositionY());
-
-
-        setBottomMoveValue(r,c);//保存
-
-    }
-
-    /**
-     * 保存底部被激活view的行和列
-     * @param r 行
-     * @param c 列
-     */
-    private void setBottomMoveValue(int r,int c){
-
-        this.br=r;
-        this.bc=c;
-
-    }
-
-    private void setPosition(int x,int y){
-
-        this.positionX=x;
-        this.positionY=y;
-
-    }
-
-
-    //重置，避免之后数据错误
-    private void resetValues(){
-
-        this.bc=0;
-        this.br=0;
-
-        this.positionY=0;
-
-        this.positionX=0;
-    }
-
-    private void startMove(final int finalX, final int finalY){
-
-        ObjectAnimator animator=ObjectAnimator.ofFloat(bottomCard,"translationX",bottomCard.getPositionX(),finalX);
-
-        ObjectAnimator animator1=ObjectAnimator.ofFloat(bottomCard,"translationY",bottomCard.getPositionY(),finalY);
-
-        AnimatorSet animatorSet = new AnimatorSet();
-
-        animatorSet.playTogether(animator,animator1);
-
-        animatorSet.setDuration(250);
-
-        animatorSet.start();
-
-        animatorSet.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-
-                //完成后把真正的给放过去
-//                bottomCard.layout();
-                int l=finalX-unitWidth/2;
-                int t=finalY-unitWidth/2;
-                int r=finalX+unitWidth/2;
-                int b=finalY+unitWidth/2;
-
-                bottomCard.layout(l,t,r,b);
-
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-
-
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-
-        return viewDragHelper.shouldInterceptTouchEvent(ev);
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-
-        viewDragHelper.processTouchEvent(event);
-
-        performClick();
-//        return super.onTouchEvent(event);
-
-        return true;
-    }
-
-    @Override
-    public boolean performClick() {
-        return super.performClick();
     }
 
     /**
@@ -550,9 +250,84 @@ public class EditLayout extends FrameLayout {
     public void applyCard(Square square){
 
         if (this.editCard!=null&&square!=null){
+            square.setScale(false);
             this.editCard.setSquare(square);
+//            this.editCard.secard_bottomtScale(false);
         }
 
+    }
+
+    private void showDialog(Square square,EditCard editCard){
+
+        AlertDialog.Builder builder=new AlertDialog.Builder(getContext());
+
+        String[] strings=new String[]{"设为起点","设为终点"};
+
+        if (square.getRow()+square.getColumn()==game.getStart()){//已经被设为起点
+            strings[0]="取消起点";
+        }
+
+        if (square.getRow()+square.getColumn()==game.getEnd()){//已经被设为终点
+            strings[1]="取消终点";
+        }
+
+
+
+        builder.setTitle("要设置一下起点或终点吗？").setItems(strings,(dialog, which) -> {
+
+           switch (strings[which]){
+
+               case "设为起点":
+
+                   if (this.card!=null) {
+
+                       this.card.setStart(false);
+                   }
+
+                   editCard.setStart(true);
+
+                   this.card=editCard;
+
+                   game.setStart(square.getRow()+square.getColumn());
+
+                   break;
+               case "设为终点":
+
+                   if (this.card!=null) {
+
+                       this.card.setEnd(false);
+                   }
+
+                   editCard.setEnd(true);
+
+                   this.card=editCard;
+
+                   game.setEnd(square.getRow()+square.getColumn());
+
+                   break;
+               case "取消起点":
+
+                   editCard.setStart(false);
+
+                   game.setStart(-1);
+                   break;
+               case "取消终点":
+
+                   editCard.setEnd(false);
+
+                   game.setEnd(-1);
+                   break;
+
+
+           }
+
+        }).show();
+
+    }
+
+    public void relayout(){
+
+        requestLayout();
     }
 
 

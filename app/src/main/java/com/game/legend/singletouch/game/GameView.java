@@ -11,7 +11,9 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.game.legend.singletouch.R;
+import com.game.legend.singletouch.bean.Game;
 import com.game.legend.singletouch.bean.Square;
+import com.game.legend.singletouch.utils.Conf;
 import com.game.legend.singletouch.utils.Difficulty;
 
 /**
@@ -34,19 +36,28 @@ public class GameView extends FrameLayout {
     protected int column;//列
     protected int row;//行
 
+    private Game game;
 
-    private Square[] [] squares;
+    private Square currentSquare;
+
+    private GameCallback gameCallback;
+
 
     private SquareView[][] squareViews = new SquareView[3][3];//存放view，以二维数组的形式
 
-    public Square[][] getSquares() {
-        return squares;
+    public void setGameCallback(GameCallback gameCallback) {
+        this.gameCallback = gameCallback;
     }
 
-    public void setSquares(Square[][] squares) {
-        this.squares = squares;
+    public Game getGame() {
+        return game;
+    }
 
-        initViews();
+    public void setGame(Game game) {
+        this.game = game;
+
+        requestLayout();
+
     }
 
     public GameView(Context context) {
@@ -179,8 +190,6 @@ public class GameView extends FrameLayout {
         @Override
         public boolean tryCaptureView(@NonNull View view, int i) {
 
-            Log.d("view--->>>",dragView.toString());
-
             return view==dragView;
         }
 
@@ -195,7 +204,7 @@ public class GameView extends FrameLayout {
 
                 switch (column) {
 
-                    case 0:
+                    case 0://第一列
 
 
                         if (dx > 0 && left + child.getMeasuredWidth() >= unitWidth&&!ctrlVertical) {
@@ -242,6 +251,88 @@ public class GameView extends FrameLayout {
 
             }
 
+            switch (column){
+
+                case 0:
+
+                    //向右，检查右边
+                    if (dx>0&&left + child.getMeasuredWidth() >= unitWidth){
+
+                        if (!isGo(row,column,3)){//检测右面
+
+                            return unitWidth-child.getMeasuredWidth();
+
+                        }
+
+
+                        if (!isGo(row,column+1,1)){//检测右边下一个的左面
+
+                            return unitWidth-child.getMeasuredWidth();
+
+                        }
+
+                    }
+
+                    break;
+
+                case 1://中间
+
+                    //左边
+                    if (dx<0&&left<=unitWidth){
+
+                        if (!isGo(row,column,1)) {
+
+                            return unitWidth;
+                        }
+
+                        if (!isGo(row,column-1,3)) {
+
+                            return unitWidth;
+                        }
+                    }
+
+                    //右边
+                    if (dx>0&&left>=2*unitWidth-child.getMeasuredWidth()){
+
+
+                        if (!isGo(row,column,3)) {
+
+                            return 2 * unitWidth - child.getMeasuredWidth();
+                        }
+
+                        if (!isGo(row,column+1,1)) {
+
+                            return 2 * unitWidth - child.getMeasuredWidth();
+                        }
+
+                    }
+
+                    break;
+
+                case 2:
+
+                    if (left<=2*unitWidth&&dx<0){//左边
+
+                        if (!isGo(row,column,1)) {
+
+                            return 2 * unitWidth;
+                        }
+
+                        if (!isGo(row,column-1,3)) {
+
+                            return 2 * unitWidth;
+                        }
+                    }
+
+                    break;
+
+
+            }
+
+
+
+
+
 
             if (left <= 0) {//左边边界
                 return 0;
@@ -261,16 +352,6 @@ public class GameView extends FrameLayout {
 
         @Override
         public int clampViewPositionVertical(@NonNull View child, int top, int dy) {
-
-//            Log.d("top--->>",top+"");
-
-//            if (isHorizontal){
-//                return child.getTop();
-//            }
-//
-//            if (Math.abs(dy)>10){
-//                isVertical=true;
-//            }
 
 
             //在控制范围内
@@ -322,6 +403,72 @@ public class GameView extends FrameLayout {
             }
 
 
+            switch (row){
+
+                case 0:
+
+                    if (dy>0&&top+child.getMeasuredHeight()>=unitWidth){
+
+                        if (!isGo(row,column,4)) {//向下
+
+                            return unitWidth - child.getMeasuredHeight();
+                        }
+
+                        if (!isGo(row+1,column,2)) {//向下
+
+                            return unitWidth - child.getMeasuredHeight();
+                        }
+
+                    }
+
+                    break;
+                case 1:
+
+                    if (dy<0&&top<=unitWidth){
+
+                        if (!isGo(row,column,2)) {//向上
+                            return unitWidth;
+                        }
+
+                        if (!isGo(row-1,column,4)) {//向上
+                            return unitWidth;
+                        }
+
+                    }
+
+                    if (dy>0&&2*unitWidth<top+child.getMeasuredHeight()){
+
+                        if (!isGo(row,column,4)) {//向下
+                            return 2 * unitWidth - child.getMeasuredHeight();
+                        }
+
+                        if (!isGo(row+1,column,2)) {//向下
+                            return 2 * unitWidth - child.getMeasuredHeight();
+                        }
+
+                    }
+
+
+                    break;
+                case 2:
+
+                    if (dy<0&&top<=2*unitWidth){
+
+                        if (!isGo(row,column,2)) {//向上
+                            return 2 * unitWidth;
+                        }
+
+                        if (!isGo(row-1,column,4)) {//向上
+                            return 2 * unitWidth;
+                        }
+                    }
+
+                    break;
+
+
+            }
+
+
 
 
             if (top <= 0) {//上边界
@@ -358,12 +505,14 @@ public class GameView extends FrameLayout {
             column = left / unitWidth;
             row = top / unitWidth;
 
+            int c=(left+changedView.getWidth()/2)/unitWidth;
+            int r=(top+changedView.getHeight()/2)/unitWidth;
+
+            changeStep(r,c);
 
             switch (column){
 
                 case 0:
-
-
 
                     ctrlVertical = unitWidth - left < changedView.getMeasuredWidth();
 
@@ -437,18 +586,16 @@ public class GameView extends FrameLayout {
 
     }
 
-
-
     private void initViews(){
 
-        if (this.squares==null){
+        if (this.game==null||this.game.getSquares()==null){
             return;
         }
 
-        for (int a=0;a<this.squares.length;a++){
+        for (int a=0;a<this.game.getSquares().length;a++){
 
 
-            for (int t=0;t<this.squares[a].length;t++){
+            for (int t=0;t<this.game.getSquares()[a].length;t++){
 
                 SquareView view=new SquareView(getContext());
 
@@ -458,7 +605,9 @@ public class GameView extends FrameLayout {
 
                 addView(view,0);
 
-                view.setSquare(squares[a][t]);
+                view.setSquare(this.game.getSquares()[a][t]);
+
+                this.squareViews[a][t]=view;//存入数组
 
 
                 //设置view的具体放置位置
@@ -498,8 +647,124 @@ public class GameView extends FrameLayout {
                         break;
 
                 }
+
+
+
+                //设置终点位置
+                if (game.getEnd()>=0) {
+
+                    if (a + t == game.getEnd()) {
+                        view.setEnd(true);
+                    }
+
+                }
+
+                //设置起点位置
+                if (game.getStart()>=0){
+
+                    if (a+t==game.getStart()){
+
+                        int le=view.getLeft()+this.dragView.getWidth()/2;
+                        int to=view.getTop()+this.dragView.getHeight()/2;
+
+                        this.dragView.layout(le,to,le+this.dragView.getWidth(),to+this.dragView.getHeight());
+
+                    }
+
+                }else {
+
+                    if (view.getSquare().getType()!=Conf.UNAVAILABLE){
+
+                        int le=view.getLeft()+this.dragView.getWidth()/2;
+                        int to=view.getTop()+this.dragView.getHeight()/2;
+
+                        this.dragView.layout(le,to,le+this.dragView.getWidth(),to+this.dragView.getHeight());
+
+                        game.setStart(a+t);
+
+                    }
+
+                }
+
             }
         }
     }
+
+    private boolean isGo(int r,int c,int t){
+
+        if (r>2||c>2||r<0||c<0){
+            return false;
+        }
+
+        Square s=game.getSquares()[r][c];
+
+        if (s.getType()== Conf.UNAVAILABLE){
+            return false;
+        }
+
+
+        switch (t){
+
+            case 1://左边
+                return s.getLeft()>0;
+
+
+            case 2://上面
+
+                return s.getTop()>0;
+
+
+
+            case 3://右边
+
+                return s.getRight()>0;
+
+
+            case 4://下面
+
+                return s.getBottom()>0;
+
+
+
+        }
+
+        return false;
+
+    }
+
+    /**
+     * 每次移动都要计算当前所在方块，如果改变方块，则
+     */
+    private void changeStep(int r,int c){
+
+        if (r<0||r>2||c<0||c>2||game==null){
+            return;
+        }
+
+        Square square=game.getSquares()[r][c];
+
+        if (this.currentSquare==null){
+            this.currentSquare=square;
+        }
+
+        if (square!=null&&square!=this.currentSquare){//标记不相同时才算是走了一步
+
+            this.currentSquare=square;
+
+            SquareView view=this.squareViews[r][c];
+
+            view.enter();
+
+            if (this.gameCallback!=null){
+
+                gameCallback.change(game,currentSquare);
+            }
+
+        }
+
+    }
+
+
+
 
 }

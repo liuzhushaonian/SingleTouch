@@ -5,20 +5,21 @@ import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
-import android.widget.Scroller;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.game.legend.singletouch.R;
 import com.game.legend.singletouch.bean.Square;
-import com.game.legend.singletouch.game.SquareView;
 import com.game.legend.singletouch.utils.Conf;
 
 /**
@@ -29,9 +30,9 @@ import com.game.legend.singletouch.utils.Conf;
 public class EditCard extends CardView {
 
 
-    private int positionX;//记录该view的X值，用于改变位置
-
-    private int positionY;//记录该view的Y值，用于改变位置
+//    private int positionX;//记录该view的X值，用于改变位置
+//
+//    private int positionY;//记录该view的Y值，用于改变位置
 
     private int activeColor;
 
@@ -49,12 +50,31 @@ public class EditCard extends CardView {
 
     int limitLeft=0,limitRight=0,limitTop=0,limitBottom=0;
 
-    private Paint paint;
+    private Paint paint,circlePaint;
 
-    boolean flag=false;
+    boolean flag=false;//标记是否拦截手势
 
-    boolean isScale=false;
+    private boolean isStart=false;//标记开头，用于渲染
+    private boolean isEnd=false;//标记结尾，用于渲染
 
+
+    public boolean isStart() {
+        return isStart;
+    }
+
+    public void setStart(boolean start) {
+        isStart = start;
+        postInvalidate();
+    }
+
+    public boolean isEnd() {
+        return isEnd;
+    }
+
+    public void setEnd(boolean end) {
+        isEnd = end;
+        postInvalidate();
+    }
 
     public EditCard(Context context) {
         super(context);
@@ -71,28 +91,32 @@ public class EditCard extends CardView {
         init();
     }
 
-    public int getPositionX() {
-        return positionX;
-    }
-
-    public void setPositionX(int positionX) {
-        this.positionX = positionX;
-    }
-
-    public int getPositionY() {
-        return positionY;
-    }
-
-    public void setPositionY(int positionY) {
-        this.positionY = positionY;
-    }
+//    public int getPositionX() {
+//        return positionX;
+//    }
+//
+//    public void setPositionX(int positionX) {
+//        this.positionX = positionX;
+//    }
+//
+//    public int getPositionY() {
+//        return positionY;
+//    }
+//
+//    public void setPositionY(int positionY) {
+//        this.positionY = positionY;
+//    }
 
     public boolean isScale() {
-        return isScale;
+        return square.isScale();
     }
 
     public void setScale(boolean scale) {
-        isScale = scale;
+
+        if (square!=null) {
+
+            square.setScale(scale);
+        }
     }
 
     @Override
@@ -159,13 +183,18 @@ public class EditCard extends CardView {
     private void init() {
 
         paint=new Paint();
+        paint.setAntiAlias(true);
+        circlePaint=new Paint();
+        circlePaint.setStyle(Paint.Style.STROKE);
+        circlePaint.setAntiAlias(true);
+        circlePaint.setStrokeWidth(8f);
+
 
         activeColor = getResources().getColor(R.color.colorBiLv);
 
         color = getResources().getColor(R.color.colorSu);
 
         inactive();
-
     }
 
 
@@ -230,7 +259,7 @@ public class EditCard extends CardView {
 
                     flag=true;
 
-//                    Log.d("position-->>",position+"左上角");
+                    Log.d("position-->>",position+"左上角");
 
                 } else if (x < oneThird && y > 2 * oneThird) {//左下角
 
@@ -238,19 +267,19 @@ public class EditCard extends CardView {
 
                     flag=true;
 
-//                    Log.d("position-->>",position+"左下角");
+                    Log.d("position-->>",position+"左下角");
 
                 } else if (x > 2 * oneThird && y < oneThird) {//右上角
                     position=30;
 
                     flag=true;
-//                    Log.d("position-->>",position+"右上角");
+                    Log.d("position-->>",position+"右上角");
 
                 } else if (x > 2 * oneThird && y > 2 * oneThird) {//右下角
                     position=40;
 
                     flag=true;
-//                    Log.d("position-->>",position+"右下角");
+                    Log.d("position-->>",position+"右下角");
 
                 }
 
@@ -269,7 +298,7 @@ public class EditCard extends CardView {
 
                 dy = (int) (event.getY() - y);
 
-//                Log.d("dy--->>",dy+"");
+                Log.d("dy--->>",dy+"");
 
 
                 getTheP();
@@ -291,6 +320,8 @@ public class EditCard extends CardView {
                 if (flag){
                     return true;
                 }
+
+                break;
 
 
         }
@@ -460,7 +491,9 @@ public class EditCard extends CardView {
      */
     private void goStart(){
 
-        if (!isScale){//不是放大状态不改变
+        Log.d("ss---->>",square.isScale()+"");
+
+        if (!square.isScale()){//不是放大状态不改变
             return;
 
         }
@@ -510,22 +543,43 @@ public class EditCard extends CardView {
 
         if (getRow()==0&&p==20){//最上面一排顶部不用动
 
+            if (square.isScale()){
+
+                Toast.makeText(getContext(), "第一排顶部不需要设置", Toast.LENGTH_SHORT).show();
+
+            }
+
             return;
         }
 
         if (getRow()==2&&p==40){//最下面一排底部不用动
 
+            if (square.isScale()){
+
+                Toast.makeText(getContext(), "第三排底部不需要设置", Toast.LENGTH_SHORT).show();
+
+            }
 
             return;
         }
 
         if (getColumn()==0&&p==10){
 
+            if (square.isScale()){
 
+                Toast.makeText(getContext(), "第一列左边不需要设置", Toast.LENGTH_SHORT).show();
+
+            }
             return;
         }
 
         if (getColumn()==2&&p==30){
+
+            if (square.isScale()){
+
+                Toast.makeText(getContext(), "第三列右边不需要设置", Toast.LENGTH_SHORT).show();
+
+            }
 
             return;
         }
@@ -664,6 +718,32 @@ public class EditCard extends CardView {
 
         }
 
+
+        //如果是开始，则画一个圈
+        if (isStart){
+
+            drawCircle(canvas,getResources().getColor(R.color.colorDian),1);
+
+        }else {
+
+            drawCircle(canvas,Color.TRANSPARENT,1);
+
+        }
+
+        //如果是结束地点，画一个圈，比开始的圈大一点
+        if (isEnd){
+            drawCircle(canvas,getResources().getColor(R.color.colorFei),2);
+
+
+        }else {
+
+            drawCircle(canvas,Color.TRANSPARENT,2);
+
+        }
+
+
+
+
     }
 
 
@@ -752,5 +832,49 @@ public class EditCard extends CardView {
         }
 
     }
+
+    /**
+     * 画环
+     * @param canvas 画布，在ondraw方法内调用
+     */
+    private void drawCircle(Canvas canvas,int color,int t){
+
+        circlePaint.setColor(color);
+
+        RectF oval=new RectF();
+
+        switch (t){
+
+            case 1:
+
+                int s=getWidth()/4;
+
+                oval.left=getWidth()/2f-s;
+                oval.top=getHeight()/2f-s;
+                oval.right=2*s+oval.left;
+                oval.bottom=2*s+oval.top;
+
+                break;
+
+
+            case 2:
+
+                int d=getWidth()/12;
+
+                oval.left=getWidth()/2f-d;
+                oval.top=getHeight()/2f-d;
+                oval.right=2*d+oval.left;
+                oval.bottom=2*d+oval.top;
+
+                break;
+        }
+
+        canvas.drawArc(oval,0,360,false,circlePaint);
+
+
+    }
+
+
+
 
 }

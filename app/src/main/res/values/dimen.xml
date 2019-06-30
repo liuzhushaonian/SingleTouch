@@ -3,5 +3,9 @@
 
     <dimen name="view_space">2dp</dimen>
 
+    <dimen name="defaultSpace">16dp</dimen>
+
+    <dimen name="press">48dp</dimen>
+
 
 </resources>

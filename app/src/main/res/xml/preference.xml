@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:title="@string/step"
+        android:key="step"
+        android:inputType="number"
+        android:icon="@drawable/ic_step"
+        />
+
+    <PreferenceScreen
+        android:title="@string/edit_start"
+        android:key="start"
+        android:summary="@string/edit_start_sum"
+        android:icon="@drawable/ic_huan2"
+
+        />
+
+    <PreferenceScreen
+        android:title="@string/edit_end"
+        android:key="start"
+        android:summary="@string/edit_end_sum"
+        android:icon="@drawable/ic_huan"
+        />
+
+
+
+
+</PreferenceScreen>

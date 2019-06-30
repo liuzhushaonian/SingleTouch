@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
@@ -26,10 +27,12 @@ public class SquareView extends CardView {
 
     private Status status= Status.INACTIVE;//标记自身是否被滑过
 
-    private int inactiveColor=getResources().getColor(R.color.colorCha);//未激活颜色
-    private int activationColor=getResources().getColor(R.color.colorPrimary);//激活颜色
+    private int inactiveColor=getResources().getColor(R.color.colorYingCao);//未激活颜色
+    private int activationColor=getResources().getColor(R.color.colorLan);//激活颜色
 
-    private Paint paint;
+    private Paint paint,circlePaint;
+
+    private boolean isEnd=false;
 
     public SquareView(Context context) {
         super(context);
@@ -44,6 +47,14 @@ public class SquareView extends CardView {
         super(context, attrs, defStyleAttr);
     }
 
+
+    public boolean isEnd() {
+        return isEnd;
+    }
+
+    public void setEnd(boolean end) {
+        isEnd = end;
+    }
 
     public Status getStatus() {
         return status;
@@ -89,6 +100,12 @@ public class SquareView extends CardView {
         paint.setAntiAlias(true);
         paint.setColor(Color.RED);
 
+
+        circlePaint=new Paint();
+        circlePaint.setStyle(Paint.Style.STROKE);
+        circlePaint.setAntiAlias(true);
+        circlePaint.setStrokeWidth(8f);
+
     }
 
 
@@ -103,8 +120,6 @@ public class SquareView extends CardView {
             return;
         }
 
-        this.square.setActive(!square.isActive());
-
         //刷新
 
         refresh();
@@ -115,18 +130,19 @@ public class SquareView extends CardView {
 
         if (square.getType()==Conf.NORMAL) {
 
-            if (this.square.isActive()) {
+            square.setType(Conf.ACTIVE);
 
-                setElevation(10);
+            setElevation(6f);
+            setBackgroundTintList(ColorStateList.valueOf(activationColor));
 
-                setBackgroundTintList(ColorStateList.valueOf(activationColor));
-//            setBackgroundColor(activationColor);
-            } else {
 
-                setElevation(0);
-                setBackgroundTintList(ColorStateList.valueOf(inactiveColor));
-//            setBackgroundColor(inactiveColor);
-            }
+        }else if (square.getType()==Conf.ACTIVE){
+
+            square.setType(Conf.NORMAL);
+            setElevation(0);
+            setBackgroundTintList(ColorStateList.valueOf(inactiveColor));
+
+
         }
 
     }
@@ -140,9 +156,9 @@ public class SquareView extends CardView {
 
         setRadius(10f);
 
-        if (square.getType() == Conf.NORMAL) {
-            refresh();
-        }
+//        if (square.getType() == Conf.NORMAL) {
+//            refresh();
+//        }
 
 
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -157,6 +173,8 @@ public class SquareView extends CardView {
 
             }
         });
+
+        initType();
 
 //        postInvalidate();
 
@@ -178,14 +196,13 @@ public class SquareView extends CardView {
 
 //        Log.d("draw--->>>","画画");
 
-        paint.setColor(getResources().getColor(R.color.colorYan));
-
         paint.setStrokeWidth(20);
 
 //        canvas.drawLine(20,0,20,50,paint);
 
 
         if (square.getLeft()<0){
+            paint.setColor(getResources().getColor(R.color.colorYan));
 
             canvas.drawLine(0,0,0,getHeight(),paint);
 
@@ -198,6 +215,7 @@ public class SquareView extends CardView {
         }
 
         if (square.getRight()<0){
+            paint.setColor(getResources().getColor(R.color.colorYan));
 
             canvas.drawLine(getWidth(),0,getWidth(),getHeight(),paint);
         }else {
@@ -209,6 +227,7 @@ public class SquareView extends CardView {
         }
 
         if (square.getTop()<0){
+            paint.setColor(getResources().getColor(R.color.colorYan));
 
             canvas.drawLine(0,0,getWidth(),0,paint);
 
@@ -220,6 +239,7 @@ public class SquareView extends CardView {
         }
 
         if (square.getBottom()<0){
+            paint.setColor(getResources().getColor(R.color.colorYan));
 
             canvas.drawLine(0,getHeight(),getWidth(),getHeight(),paint);
 
@@ -230,31 +250,104 @@ public class SquareView extends CardView {
 
         }
 
+
+        //如果是结束地点，画一个圈，比开始的圈大一点
+        if (isEnd){
+            drawCircle(canvas,getResources().getColor(R.color.colorFei),2);
+
+        }else {
+
+            drawCircle(canvas,Color.TRANSPARENT,2);
+
+        }
+
     }
 
-    public boolean isLeft(){
+    private void initType(){
 
-        return square.getLeft()>0;
+        if (this.square==null){
+            return;
+        }
+
+        switch (square.getType()){
+
+            case Conf.NORMAL:
+
+                setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorYingCao)));
+                setElevation(0);
+
+                break;
+
+            case Conf.BLANK:
+
+                setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorXiangYaBai)));
+                setElevation(0);
+
+                break;
+
+            case Conf.UNAVAILABLE:
+
+                setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorYa)));
+                setElevation(0);
+
+                break;
+
+            case Conf.ACTIVE:
+
+                setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorLan)));
+                setElevation(5f);
+
+                break;
+
+        }
+
+
+
+
+
     }
 
-    public boolean isRight(){
 
-        return square.getRight()>0;
+    /**
+     * 画环
+     * @param canvas 画布，在ondraw方法内调用
+     */
+    private void drawCircle(Canvas canvas,int color,int t){
+
+        circlePaint.setColor(color);
+
+        RectF oval=new RectF();
+
+        switch (t){
+
+            case 1:
+
+                int s=getWidth()/4;
+
+                oval.left=getWidth()/2f-s;
+                oval.top=getHeight()/2f-s;
+                oval.right=2*s+oval.left;
+                oval.bottom=2*s+oval.top;
+
+                break;
+
+
+            case 2:
+
+                int d=getWidth()/12;
+
+                oval.left=getWidth()/2f-d;
+                oval.top=getHeight()/2f-d;
+                oval.right=2*d+oval.left;
+                oval.bottom=2*d+oval.top;
+
+                break;
+        }
+
+        canvas.drawArc(oval,0,360,false,circlePaint);
+
+
     }
-
-    public boolean isTop(){
-
-        return square.getTop()>0;
-    }
-
-    public boolean isBottom(){
-
-        return square.getBottom()>0;
-    }
-
-
-
-
 
 
 }
